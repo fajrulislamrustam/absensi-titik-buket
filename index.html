@@ -385,7 +385,7 @@ async function loadStorage(silent){
   }
   if(!silent||$('tabStore')){
     const el=$('storeBox');
-    if(el)el.innerHTML=`Total <b>${data.totalMB} / ${data.limitMB} MB (${pct}%)</b><div class="w-full bg-gray-200 rounded h-4 mt-2"><div class="h-4 rounded ${pct>=80?'bg-red-500':'bg-green-500'}" style="width:${Math.min(pct,100)}%"></div></div><p class="mt-2">Foto: ${data.uploadsMB} MB • Database: ${data.dbMB} MB</p><p class="mt-1 ${data.warning?'text-red-600 font-bold':''}">${data.message}</p>${data.warning?'<p class="mt-1">Buka menu <b>Hapus Data</b> → hapus per bulan lama untuk melegakan ruang.</p>':''}`;
+    if(el)el.innerHTML=`<p class="mb-1">Mode: <b class="${data.permanen?'text-green-700':'text-red-600'}">${data.permanen?'PERMANEN ('+data.dataDir+')':'SEMENTARA — data hilang saat update!'}</b></p><p class="mb-1">User: <b>${data.jumlahUser}</b> • Absen: <b>${data.jumlahAbsen}</b></p>Total <b>${data.totalMB} / ${data.limitMB} MB (${pct}%)</b><div class="w-full bg-gray-200 rounded h-4 mt-2"><div class="h-4 rounded ${pct>=80?'bg-red-500':'bg-green-500'}" style="width:${Math.min(pct,100)}%"></div></div><p class="mt-2">Foto: ${data.uploadsMB} MB • Database: ${data.dbMB} MB</p><p class="mt-1 ${data.warning?'text-red-600 font-bold':''}">${data.message}</p>${data.warning?'<p class="mt-1">Buka menu <b>Hapus Data</b> → hapus per bulan lama untuk melegakan ruang.</p>':''}`;
   }
 }
 tryRestore();
