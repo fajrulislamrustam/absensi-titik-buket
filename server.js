@@ -341,6 +341,38 @@ app.delete('/api/admin/attendance', auth, adminOnly, (req, res) => {
   res.json({ ok: true, message: `${hapus} data absensi dihapus (${fotoHapus} foto ikut dibersihkan)`, hapus });
 });
 
+// Hapus FOTO saja (data laporan tetap ada, foto jadi "tanpa foto"). Mode: semua | bulan=YYYY-MM | lebih_dari=N (hari)
+app.delete('/api/admin/photos', auth, adminOnly, (req, res) => {
+  const db = loadDB();
+  const { mode, bulan, hari } = req.query;
+  const beforeMB = dirSizeMB(UPLOAD_DIR);
+  let kena = 0;
+  const cocok = (r) => {
+    if (!r.photo) return false;
+    if (mode === 'semua') return true;
+    if (mode === 'bulan' && bulan) return r.tanggal.startsWith(bulan);
+    if (mode === 'lebih_dari' && hari) {
+      const batas = new Date(); batas.setDate(batas.getDate() - parseInt(hari));
+      const tgl = new Date(r.tanggal + 'T00:00:00');
+      return tgl < batas;
+    }
+    return false;
+  };
+  if (!['semua', 'bulan', 'lebih_dari'].includes(mode))
+    return res.status(400).json({ ok: false, message: 'Mode tidak valid. Gunakan mode=semua|bulan|lebih_dari.' });
+  for (const r of db.attendance) {
+    if (cocok(r)) {
+      try { fs.unlinkSync(path.join(DATA_DIR, r.photo.replace(/^\//, ''))); } catch {}
+      r.photo = null; r.fotoDiskip = true;
+      r.keterangan = (r.keterangan ? r.keterangan + ' • ' : '') + 'Foto dihapus admin (hemat penyimpanan)';
+      kena++;
+    }
+  }
+  saveDB(db);
+  const freed = beforeMB - dirSizeMB(UPLOAD_DIR);
+  res.json({ ok: true, message: `${kena} foto dihapus, hemat ${freed.toFixed(1)} MB. Data laporan tetap aman.`, hapus: kena, hematMB: +freed.toFixed(2) });
+});
+
 // ============ STORAGE ============
 app.get('/api/admin/storage', auth, adminOnly, (req, res) => {
   const upMB = dirSizeMB(UPLOAD_DIR);
