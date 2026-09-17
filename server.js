@@ -255,12 +255,29 @@ app.get('/api/admin/attendance', auth, adminOnly, (req, res) => {
   res.json({ ok: true, count: rows.length, rows });
 });
 
-// Laporan bulanan per karyawan
+// Periode laporan: tgl 29 bulan lalu s/d tgl 28 bulan berjalan. Contoh periode=2026-09 -> 2026-08-29 s/d 2026-09-28
+function periodRange(periode) {
+  const [y, m] = periode.split('-').map(Number);
+  const end = `${y}-${String(m).padStart(2, '0')}-28`;
+  const pm = m === 1 ? 12 : m - 1, py = m === 1 ? y - 1 : y;
+  const start = `${py}-${String(pm).padStart(2, '0')}-29`;
+  return { start, end };
+}
+// Laporan per karyawan: mode kalender (?bulan=YYYY-MM) atau periode 29-28 (?periode=YYYY-MM)
 app.get('/api/admin/report', auth, adminOnly, (req, res) => {
   const db = loadDB();
-  const { bulan, storeId } = req.query; // bulan: YYYY-MM
-  if (!bulan) return res.status(400).json({ ok: false, message: 'Parameter bulan (YYYY-MM) wajib' });
-  let rows = db.attendance.filter(r => r.tanggal.startsWith(bulan));
+  const { bulan, periode, storeId } = req.query;
+  let rows, label;
+  if (periode) {
+    if (!/^\d{4}-\d{2}$/.test(periode)) return res.status(400).json({ ok: false, message: 'Parameter periode (YYYY-MM) tidak valid' });
+    const { start, end } = periodRange(periode);
+    rows = db.attendance.filter(r => r.tanggal >= start && r.tanggal <= end);
+    label = { mode: 'periode', periode, start, end };
+  } else {
+    if (!bulan) return res.status(400).json({ ok: false, message: 'Parameter bulan (YYYY-MM) wajib' });
+    rows = db.attendance.filter(r => r.tanggal.startsWith(bulan));
+    label = { mode: 'bulan', bulan };
+  }
   if (storeId) rows = rows.filter(r => r.storeId === storeId);
   const map = {};
   for (const r of rows) {
@@ -277,7 +294,7 @@ app.get('/api/admin/report', auth, adminOnly, (req, res) => {
   }
   const rekap = Object.values(map).map(e => ({ ...e, hariHadir: e.tanggalHadir.size, tanggalHadir: [...e.tanggalHadir].sort(), detail: e.detail.sort((a, b) => a.timestamp.localeCompare(b.timestamp)) }));
   rekap.sort((a, b) => a.nama.localeCompare(b.nama));
-  res.json({ ok: true, bulan, jumlahKaryawan: rekap.length, totalAbsen: rows.length, rekap });
+  res.json({ ok: true, ...label, jumlahKaryawan: rekap.length, totalAbsen: rows.length, rekap });
 });
 
 // Hapus data: per nama (userId/username), per hari (tanggal), per bulan (YYYY-MM), atau satu record
