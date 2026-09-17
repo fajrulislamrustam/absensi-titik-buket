@@ -1,0 +1,26 @@
+LANGKAH DEPLOY — tanpa install apa pun (cukup browser + HP)
+
+YANG SUDAH SAYA SIAPKAN:
+- File absensi-titik-buket-deploy.zip (isi: server.js, package.json, render.yaml, public/, panduan)
+- Kode sudah permanen-ready (disk /var/data, DATA_DIR)
+
+YANG HARUS ANDA LAKUKAN (2 langkah, ±10 menit):
+
+LANGKAH 1 — Masukkan ke GitHub (5 menit):
+1. Buka github.com → daftar/masuk → New repository → nama: absensi-titik-buket → Create.
+2. Klik "uploading an existing file" → seret file absensi-titik-buket-deploy.zip ke sana?
+   JANGAN upload zip-nya. Sebaliknya: ekstrak zip dulu di laptop, lalu seret ISI-nya
+   (server.js, package.json, render.yaml, folder public) ke halaman GitHub → Commit changes.
+
+LANGKAH 2 — Nyalakan server permanen di Render (5 menit):
+1. Buka render.com → daftar pakai akun GitHub → New + → Blueprint → pilih repo absensi-titik-buket → Deploy.
+2. Tunggu ±3 menit → dapat LINK PERMANEN misal https://absensi-titik-buket.onrender.com
+3. Buka link → login admin / admin123 → menu Toko & GPS kalibrasi 2 toko → menu Kelola Akun buat akun karyawan.
+4. Bagikan link + username/password ke karyawan via WA. Selesai — laptop boleh mati.
+
+ANTI-TIDUR (gratis, 2 menit):
+- Buka uptimerobot.com → daftar → Add Monitor → HTTP(S) → tempel link Render → interval 5 menit.
+
+QR UNTUK DITEMPEL DI TOKO:
+- Buka di browser: https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=LINK_ANDA
+  (ganti LINK_ANDA dengan link Render Anda) → simpan gambar → print → tempel di 2 toko.
