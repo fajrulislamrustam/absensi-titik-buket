@@ -4,20 +4,24 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Absensi Titik Buket — Pettarani & Samata</title>
+<link rel="icon" href="LOGO.jpeg">
 <script src="https://cdn.tailwindcss.com"></script>
 <style>
   video,canvas,img{max-width:100%}
-  .tabbtn.active{background:#111827;color:#fff}
+  .tabbtn.active{background:#0e3b3e;color:#fff}
   @media print{ .noprint{display:none!important} body{background:#fff} }
 </style>
 </head>
-<body class="bg-gray-100 min-h-screen">
+<body class="bg-[#faf6f1] min-h-screen">
 <div class="max-w-5xl mx-auto p-4">
 
-  <header class="bg-gray-900 text-white rounded-2xl p-5 mb-4 flex items-center justify-between">
-    <div>
-      <h1 class="text-xl font-bold">🧺 Absensi Titik Buket</h1>
-      <p class="text-sm text-gray-300">Pettarani • Samata — Verifikasi Lokasi + Foto • 1 Server</p>
+  <header class="bg-[#0e3b3e] text-white rounded-2xl p-5 mb-4 flex items-center justify-between">
+    <div class="flex items-center gap-3">
+      <img src="LOGO.jpeg" alt="Titik Buket" class="w-14 h-14 rounded-full object-cover border-2 border-[#f5e9e0]">
+      <div>
+        <h1 class="text-xl font-bold">Absensi Titik Buket</h1>
+        <p class="text-sm text-[#f5e9e0]">Pettarani • Samata — Verifikasi Lokasi + Foto • 1 Server</p>
+      </div>
     </div>
     <div id="userBox" class="text-right text-sm hidden">
       <div id="userNama" class="font-bold"></div>
@@ -29,14 +33,15 @@
   <div id="storageAlert" class="hidden mb-4 bg-yellow-100 border-l-4 border-yellow-500 text-yellow-900 p-3 rounded text-sm"></div>
 
   <!-- LOGIN -->
-  <section id="loginSec" class="bg-white rounded-2xl p-6 shadow max-w-md mx-auto">
+  <section id="loginSec" class="bg-white rounded-2xl p-6 shadow max-w-md mx-auto text-center">
+    <img src="LOGO.jpeg" alt="Titik Buket" class="w-24 h-24 rounded-full object-cover mx-auto mb-3 border-4 border-[#0e3b3e]">
     <h2 class="font-bold text-lg mb-1">Masuk</h2>
     <p class="text-sm text-gray-500 mb-4">Akun hanya dibuat oleh admin. Minta username & password ke admin.</p>
     <label class="text-sm">Username</label>
     <input id="inUser" class="w-full border rounded p-2 mb-3" placeholder="cth: karyawan1" autocomplete="username">
     <label class="text-sm">Password</label>
     <input id="inPass" type="password" class="w-full border rounded p-2 mb-4" placeholder="••••••" autocomplete="current-password">
-    <button onclick="doLogin()" class="w-full bg-gray-900 text-white rounded p-2 font-bold">Masuk</button>
+    <button onclick="doLogin()" class="w-full bg-[#0e3b3e] text-white rounded p-2 font-bold">Masuk</button>
     <p class="text-xs text-gray-500 mt-3">Default admin: <b>admin</b> / <b>admin123</b> — segera ganti password setelah deploy.</p>
     <p id="loginMsg" class="text-sm mt-2"></p>
   </section>
@@ -79,7 +84,7 @@
           <div id="gpsBox" class="text-sm bg-gray-50 border rounded p-2 mb-2">Belum diambil. Klik tombol di bawah.</div>
           <button onclick="getGPS()" class="noprint bg-green-600 text-white px-3 py-1 rounded text-sm mb-2">📡 Ambil Lokasi Saya</button>
           <div class="text-xs text-gray-500 mb-2">Toleransi lokasi: <b>1000 m</b> dari titik toko. Di luar itu absen <b>DITOLAK</b> otomatis.<br>Toleransi telat: <b>20 menit</b> dari jam masuk shift.</div>
-          <button onclick="kirimAbsen()" id="btnAbsen" class="w-full bg-gray-900 text-white rounded p-3 font-bold">✅ KIRIM ABSEN</button>
+          <button onclick="kirimAbsen()" id="btnAbsen" class="w-full bg-[#0e3b3e] text-white rounded p-3 font-bold">✅ KIRIM ABSEN</button>
           <p id="absenMsg" class="text-sm mt-2 font-bold"></p>
         </div>
       </div>
@@ -108,17 +113,21 @@
         <input id="fTgl" type="date" class="border rounded p-2 text-sm">
         <input id="fBulan" type="month" class="border rounded p-2 text-sm">
         <input id="fNama" placeholder="Cari nama..." class="border rounded p-2 text-sm">
-        <button onclick="loadAdminData()" class="bg-gray-900 text-white rounded p-2 text-sm">Tampilkan</button>
+        <button onclick="loadAdminData()" class="bg-[#0e3b3e] text-white rounded p-2 text-sm">Tampilkan</button>
       </div>
       <div id="adminRows" class="text-sm overflow-x-auto"></div>
     </div>
 
     <div id="tabLap" class="hidden bg-white rounded-2xl p-5 shadow">
-      <h2 class="font-bold mb-3">📊 Laporan Bulanan per Karyawan</h2>
-      <div class="flex gap-2 mb-3 noprint">
+      <h2 class="font-bold mb-3">📊 Laporan per Karyawan</h2>
+      <div class="flex flex-wrap gap-2 mb-3 noprint">
+        <select id="lapMode" class="border rounded p-2 text-sm">
+          <option value="periode">Periode (29 – 28)</option>
+          <option value="bulan">Kalender (1 – akhir bulan)</option>
+        </select>
         <input id="lapBulan" type="month" class="border rounded p-2 text-sm">
         <select id="lapStore" class="border rounded p-2 text-sm"><option value="">Semua toko</option><option value="pettarani">Pettarani</option><option value="samata">Samata</option></select>
-        <button onclick="loadReport()" class="bg-gray-900 text-white rounded px-3 py-2 text-sm">Tampilkan</button>
+        <button onclick="loadReport()" class="bg-[#0e3b3e] text-white rounded px-3 py-2 text-sm">Tampilkan</button>
         <button onclick="exportCSV()" class="bg-green-600 text-white rounded px-3 py-2 text-sm">⬇ CSV</button>
         <button onclick="window.print()" class="bg-blue-600 text-white rounded px-3 py-2 text-sm">🖨 Print</button>
       </div>
@@ -134,7 +143,7 @@
         <select id="uRole" class="border rounded p-2 text-sm"><option value="karyawan">karyawan</option><option value="admin">admin</option></select>
         <select id="uStore" class="border rounded p-2 text-sm"><option value="semua">semua</option><option value="pettarani">pettarani</option><option value="samata">samata</option></select>
       </div>
-      <button onclick="createUser()" class="bg-gray-900 text-white rounded px-4 py-2 text-sm mb-4">+ Buat Akun</button>
+      <button onclick="createUser()" class="bg-[#0e3b3e] text-white rounded px-4 py-2 text-sm mb-4">+ Buat Akun</button>
       <div id="userList" class="text-sm"></div>
     </div>
 
@@ -166,7 +175,7 @@
     <div id="tabStore" class="hidden bg-white rounded-2xl p-5 shadow">
       <h2 class="font-bold mb-3">💾 Penyimpanan</h2>
       <div id="storeBox" class="text-sm"></div>
-      <button onclick="loadStorage()" class="mt-2 bg-gray-900 text-white px-3 py-2 rounded text-sm">🔄 Cek Sekarang</button>
+      <button onclick="loadStorage()" class="mt-2 bg-[#0e3b3e] text-white px-3 py-2 rounded text-sm">🔄 Cek Sekarang</button>
     </div>
   </section>
 
@@ -177,7 +186,7 @@
 </div>
 
 <script>
-let TOKEN=null, ME=null, STORES={}, GPS=null, PHOTO=null, LAST_REPORT=[];
+let TOKEN=null, ME=null, STORES={}, GPS=null, PHOTO=null, LAST_REPORT=[], LAST_LABEL=null;
 const $=id=>document.getElementById(id);
 
 function api(p,opt={}){
@@ -289,7 +298,7 @@ async function loadRiwayat(){
 async function loadAdminData(){
   const q=new URLSearchParams({storeId:$('fStore').value,tanggal:$('fTgl').value,bulan:$('fBulan').value,nama:$('fNama').value});
   const {data}=await api('/api/admin/attendance?'+q.toString());
-  $('adminRows').innerHTML=`<p class="mb-2"><b>${data.count||0}</b> data</p>`+`<table class="w-full text-xs border"><tr class="bg-gray-800 text-white"><th class="p-1 border">Tanggal/Jam</th><th class="p-1 border">Nama</th><th class="p-1 border">Toko/Shift</th><th class="p-1 border">Tipe/Status</th><th class="p-1 border">Jarak</th><th class="p-1 border">Foto</th><th class="p-1 border noprint">Aksi</th></tr>`+
+  $('adminRows').innerHTML=`<p class="mb-2"><b>${data.count||0}</b> data</p>`+`<table class="w-full text-xs border"><tr class="bg-[#0e3b3e] text-white"><th class="p-1 border">Tanggal/Jam</th><th class="p-1 border">Nama</th><th class="p-1 border">Toko/Shift</th><th class="p-1 border">Tipe/Status</th><th class="p-1 border">Jarak</th><th class="p-1 border">Foto</th><th class="p-1 border noprint">Aksi</th></tr>`+
   (data.rows||[]).map(r=>`<tr><td class="p-1 border">${r.tanggal}<br>${r.jamWita}</td><td class="p-1 border">${r.nama}<br><span class="text-gray-500">${r.username}</span></td><td class="p-1 border">${r.storeNama}<br>${r.shift}</td><td class="p-1 border">${r.type}<br><b>${r.status}</b><br>${r.keterangan||''}</td><td class="p-1 border">${r.distance} m</td><td class="p-1 border"><a href="${r.photo}" target="_blank"><img src="${r.photo}" class="w-10 h-14 object-cover"></a></td><td class="p-1 border noprint"><button onclick="hapusSatu('${r.id}')" class="bg-red-500 text-white px-2 py-1 rounded">Hapus</button></td></tr>`).join('')+`</table>`;
 }
 async function hapusSatu(id){
@@ -299,16 +308,21 @@ async function hapusSatu(id){
 }
 async function loadReport(){
   if(!$('lapBulan').value){alert('Pilih bulan dulu');return;}
-  const {data}=await api(`/api/admin/report?bulan=${$('lapBulan').value}&storeId=${$('lapStore').value}`);
-  LAST_REPORT=data.rekap||[];
-  $('lapOut').innerHTML=`<p class="mb-2">Bulan <b>${data.bulan}</b> • ${data.jumlahKaryawan} karyawan • ${data.totalAbsen} absen</p>`+
-  LAST_REPORT.map(k=>`<div class="border rounded p-3 mb-3"><b>${k.nama}</b> <span class="text-gray-500">(${k.username})</span><br><span class="text-xs">Hari hadir: <b>${k.hariHadir}</b> • Masuk: ${k.hadirMasuk} • Tepat: ${k.tepatWaktu} • Terlambat: <b class="text-red-600">${k.terlambat}</b> (${k.totalMenitTerlambat} mnt) • Pulang: ${k.pulang} • Pulang cepat: ${k.pulangCepat}</span><table class="w-full text-xs border mt-2"><tr class="bg-gray-100"><th class="border p-1">Tgl</th><th class="border p-1">Jam</th><th class="border p-1">Toko</th><th class="border p-1">Shift</th><th class="border p-1">Tipe</th><th class="border p-1">Status</th></tr>${k.detail.map(d=>`<tr><td class="border p-1">${d.tanggal}</td><td class="border p-1">${d.jamWita}</td><td class="border p-1">${d.storeNama}</td><td class="border p-1">${d.shift}</td><td class="border p-1">${d.type}</td><td class="border p-1">${d.status}</td></tr>`).join('')}</table></div>`).join('')||'Tidak ada data bulan ini.';
+  const mode=$('lapMode').value, param=mode==='periode'?'periode':'bulan';
+  const {data}=await api(`/api/admin/report?${param}=${$('lapBulan').value}&storeId=${$('lapStore').value}`);
+  if(!data.ok){alert(data.message||'Gagal');return;}
+  LAST_REPORT=data.rekap||[];LAST_LABEL=data;
+  const judulLap=data.mode==='periode'?`Periode <b>${data.start} s/d ${data.end}</b>`:`Bulan <b>${data.bulan}</b>`;
+  $('lapOut').innerHTML=`<p class="mb-2">${judulLap} • ${data.jumlahKaryawan} karyawan • ${data.totalAbsen} absen</p>`+
+  LAST_REPORT.map(k=>`<div class="border rounded p-3 mb-3"><b>${k.nama}</b> <span class="text-gray-500">(${k.username})</span><br><span class="text-xs">Hari hadir: <b>${k.hariHadir}</b> • Masuk: ${k.hadirMasuk} • Tepat: ${k.tepatWaktu} • Terlambat: <b class="text-red-600">${k.terlambat}</b> (${k.totalMenitTerlambat} mnt) • Pulang: ${k.pulang} • Pulang cepat: ${k.pulangCepat}</span><table class="w-full text-xs border mt-2"><tr class="bg-gray-100"><th class="border p-1">Tgl</th><th class="border p-1">Jam</th><th class="border p-1">Toko</th><th class="border p-1">Shift</th><th class="border p-1">Tipe</th><th class="border p-1">Status</th></tr>${k.detail.map(d=>`<tr><td class="border p-1">${d.tanggal}</td><td class="border p-1">${d.jamWita}</td><td class="border p-1">${d.storeNama}</td><td class="border p-1">${d.shift}</td><td class="border p-1">${d.type}</td><td class="border p-1">${d.status}</td></tr>`).join('')}</table></div>`).join('')||'Tidak ada data pada periode ini.';
 }
 function exportCSV(){
   if(!LAST_REPORT.length){alert('Tampilkan laporan dulu');return;}
-  let csv='Nama,Username,Hari Hadir,Masuk,Tepat Waktu,Terlambat,Total Menit Telat,Pulang,Pulang Cepat\n';
+  const L=LAST_LABEL||{};
+  const judulCSV=L.mode==='periode'?`Periode ${L.start} s/d ${L.end}`:`Bulan ${L.bulan||$('lapBulan').value}`;
+  let csv=`Laporan Absensi Titik Buket - ${judulCSV}\nNama,Username,Hari Hadir,Masuk,Tepat Waktu,Terlambat,Total Menit Telat,Pulang,Pulang Cepat\n`;
   LAST_REPORT.forEach(k=>{csv+=`"${k.nama}","${k.username}",${k.hariHadir},${k.hadirMasuk},${k.tepatWaktu},${k.terlambat},${k.totalMenitTerlambat},${k.pulang},${k.pulangCepat}\n`;});
-  const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv'}));a.download=`laporan_${$('lapBulan').value}.csv`;a.click();
+  const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv'}));a.download=`laporan_${L.mode==='periode'?'periode-'+L.periode:(L.bulan||$('lapBulan').value)}.csv`;a.click();
 }
 async function createUser(){
   const {data}=await api('/api/admin/users',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+TOKEN},body:JSON.stringify({username:$('uUser').value.trim(),nama:$('uNama').value.trim(),password:$('uPass').value,role:$('uRole').value,storeId:$('uStore').value})});
@@ -331,7 +345,7 @@ async function hapusData(mode){
 }
 async function loadToko(){
   const {data}=await api('/api/stores');STORES=data.stores;
-  $('tokoList').innerHTML=Object.values(STORES).map(t=>`<div class="border rounded p-3"><b>${t.nama}</b><br><span class="text-gray-500">${t.alamat}</span><br>Shift: ${t.shifts.map(s=>`${s.id} ${s.masuk}-${s.pulang}`).join(' • ')}<div class="grid md:grid-cols-3 gap-2 mt-2 noprint"><div><label class="text-xs">Latitude</label><input id="lat_${t.id}" value="${t.lat}" class="w-full border rounded p-1"></div><div><label class="text-xs">Longitude</label><input id="lng_${t.id}" value="${t.lng}" class="w-full border rounded p-1"></div><div><label class="text-xs">Radius (m)</label><input id="rad_${t.id}" value="${t.radiusMeter}" class="w-full border rounded p-1"></div></div><div class="mt-2 noprint"><button onclick="saveToko('${t.id}')" class="bg-gray-900 text-white px-3 py-1 rounded text-sm">Simpan Kalibrasi</button> <a href="https://www.google.com/maps?q=${t.lat},${t.lng}" target="_blank" class="text-blue-600 underline text-sm">Lihat di Maps</a></div></div>`).join('');
+  $('tokoList').innerHTML=Object.values(STORES).map(t=>`<div class="border rounded p-3"><b>${t.nama}</b><br><span class="text-gray-500">${t.alamat}</span><br>Shift: ${t.shifts.map(s=>`${s.id} ${s.masuk}-${s.pulang}`).join(' • ')}<div class="grid md:grid-cols-3 gap-2 mt-2 noprint"><div><label class="text-xs">Latitude</label><input id="lat_${t.id}" value="${t.lat}" class="w-full border rounded p-1"></div><div><label class="text-xs">Longitude</label><input id="lng_${t.id}" value="${t.lng}" class="w-full border rounded p-1"></div><div><label class="text-xs">Radius (m)</label><input id="rad_${t.id}" value="${t.radiusMeter}" class="w-full border rounded p-1"></div></div><div class="mt-2 noprint"><button onclick="saveToko('${t.id}')" class="bg-[#0e3b3e] text-white px-3 py-1 rounded text-sm">Simpan Kalibrasi</button> <a href="https://www.google.com/maps?q=${t.lat},${t.lng}" target="_blank" class="text-blue-600 underline text-sm">Lihat di Maps</a></div></div>`).join('');
 }
 async function saveToko(id){
   const {data}=await api('/api/admin/stores/'+id,{method:'PUT',headers:{'Content-Type':'application/json','Authorization':'Bearer '+TOKEN},body:JSON.stringify({lat:parseFloat($('lat_'+id).value),lng:parseFloat($('lng_'+id).value),radiusMeter:parseInt($('rad_'+id).value)})});
