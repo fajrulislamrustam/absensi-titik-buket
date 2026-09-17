@@ -217,21 +217,35 @@ app.post('/api/absen', auth, upload.single('photo'), (req, res) => {
     else status = 'pulang';
   }
 
-  // Simpan foto dengan ekstensi
-  const ext = path.extname(req.file.originalname || '') || '.jpg';
-  const finalName = `${dateStr}_${req.user.username}_${type}_${Date.now()}${ext}`;
-  try { fs.renameSync(req.file.path, path.join(UPLOAD_DIR, finalName)); } catch {}
+  // Simpan foto — LEWATI bila penyimpanan >= 80% penuh (absen tetap diterima agar laporan tetap masuk)
+  let photoPath = null, fotoDiskip = false;
+  try {
+    let dbSize = 0; try { dbSize = fs.statSync(DATA_FILE).size; } catch {}
+    const totalMB = dirSizeMB(UPLOAD_DIR) + dbSize / (1024 * 1024);
+    if (totalMB >= STORAGE_LIMIT_MB * 0.8) {
+      try { fs.unlinkSync(req.file.path); } catch {}
+      fotoDiskip = true;
+    }
+  } catch { /* jika cek gagal, simpan foto seperti biasa */ }
+  if (!fotoDiskip) {
+    const ext = path.extname(req.file.originalname || '') || '.jpg';
+    const finalName = `${dateStr}_${req.user.username}_${type}_${Date.now()}${ext}`;
+    try { fs.renameSync(req.file.path, path.join(UPLOAD_DIR, finalName)); photoPath = '/uploads/' + finalName; } catch {}
+  }
 
   const rec = {
     id: 'a-' + Date.now() + '-' + Math.floor(Math.random() * 9999),
     userId: req.user.id, username: req.user.username, nama: req.user.nama,
     storeId, storeNama: store.nama, shift: shiftDef.id,
     type, timestamp: now.toISOString(), tanggal: dateStr, jamWita: timeStr,
-    lat: uLat, lng: uLng, distance: dist, status, keterangan,
-    photo: '/uploads/' + finalName
+    lat: uLat, lng: uLng, distance: dist, status, keterangan: fotoDiskip ? (keterangan ? keterangan + ' • ' : '') + 'Foto dilewati (penyimpanan hampir penuh)' : keterangan,
+    photo: photoPath, fotoDiskip
   };
   db.attendance.push(rec); saveDB(db);
-  res.json({ ok: true, message: type === 'masuk' ? (status === 'terlambat' ? `Absen masuk tercatat (TERLAMBAT - ${keterangan})` : 'Absen masuk tercatat. Selamat bekerja!') : 'Absen pulang tercatat. Terima kasih!', record: rec });
+  const okMsg = type === 'masuk'
+    ? (status === 'terlambat' ? `Absen masuk tercatat (TERLAMBAT - ${rec.keterangan})` : 'Absen masuk tercatat. Selamat bekerja!')
+    : 'Absen pulang tercatat. Terima kasih!';
+  res.json({ ok: true, message: fotoDiskip ? okMsg + ' Catatan: foto tidak disimpan karena penyimpanan hampir penuh.' : okMsg, record: rec });
 });
 
 app.get('/api/my-attendance', auth, (req, res) => {

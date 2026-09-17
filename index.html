@@ -290,7 +290,7 @@ async function kirimAbsen(){
 }
 async function loadRiwayat(){
   const {data}=await api('/api/my-attendance');
-  $('riwayat').innerHTML=(data.rows||[]).map(r=>`<div class="border rounded p-2 flex gap-2 items-center"><img src="${r.photo}" class="w-12 h-16 object-cover rounded"><div><b>${r.type.toUpperCase()}</b> • ${r.tanggal} ${r.jamWita} • ${r.storeNama} • ${r.shift} • <span class="${r.status==='terlambat'?'text-red-600 font-bold':'text-green-700'}">${r.status}</span> ${r.keterangan||''}<br><span class="text-gray-500">jarak ${r.distance} m</span></div></div>`).join('')||'Belum ada absensi.';
+  $('riwayat').innerHTML=(data.rows||[]).map(r=>{const f=r.photo?`<img src="${r.photo}" class="w-12 h-16 object-cover rounded">`:`<div class="w-12 h-16 rounded bg-gray-200 flex items-center justify-center text-[10px] text-gray-500 text-center">tanpa<br>foto</div>`;return `<div class="border rounded p-2 flex gap-2 items-center">${f}<div><b>${r.type.toUpperCase()}</b> • ${r.tanggal} ${r.jamWita} • ${r.storeNama} • ${r.shift} • <span class="${r.status==='terlambat'?'text-red-600 font-bold':'text-green-700'}">${r.status}</span> ${r.keterangan||''}<br><span class="text-gray-500">jarak ${r.distance} m</span></div></div>`;}).join('')||'Belum ada absensi.';
 }
 
 // ADMIN
@@ -298,7 +298,7 @@ async function loadAdminData(){
   const q=new URLSearchParams({storeId:$('fStore').value,tanggal:$('fTgl').value,bulan:$('fBulan').value,nama:$('fNama').value});
   const {data}=await api('/api/admin/attendance?'+q.toString());
   $('adminRows').innerHTML=`<p class="mb-2"><b>${data.count||0}</b> data</p>`+`<table class="w-full text-xs border"><tr class="bg-[#0e3b3e] text-white"><th class="p-1 border">Tanggal/Jam</th><th class="p-1 border">Nama</th><th class="p-1 border">Toko/Shift</th><th class="p-1 border">Tipe/Status</th><th class="p-1 border">Jarak</th><th class="p-1 border">Foto</th><th class="p-1 border noprint">Aksi</th></tr>`+
-  (data.rows||[]).map(r=>`<tr><td class="p-1 border">${r.tanggal}<br>${r.jamWita}</td><td class="p-1 border">${r.nama}<br><span class="text-gray-500">${r.username}</span></td><td class="p-1 border">${r.storeNama}<br>${r.shift}</td><td class="p-1 border">${r.type}<br><b>${r.status}</b><br>${r.keterangan||''}</td><td class="p-1 border">${r.distance} m</td><td class="p-1 border"><a href="${r.photo}" target="_blank"><img src="${r.photo}" class="w-10 h-14 object-cover"></a></td><td class="p-1 border noprint"><button onclick="hapusSatu('${r.id}')" class="bg-red-500 text-white px-2 py-1 rounded">Hapus</button></td></tr>`).join('')+`</table>`;
+  (data.rows||[]).map(r=>`<tr><td class="p-1 border">${r.tanggal}<br>${r.jamWita}</td><td class="p-1 border">${r.nama}<br><span class="text-gray-500">${r.username}</span></td><td class="p-1 border">${r.storeNama}<br>${r.shift}</td><td class="p-1 border">${r.type}<br><b>${r.status}</b><br>${r.keterangan||''}</td><td class="p-1 border">${r.distance} m</td><td class="p-1 border">${r.photo?`<a href="${r.photo}" target="_blank"><img src="${r.photo}" class="w-10 h-14 object-cover"></a>`:'<span class="text-gray-400">tanpa foto</span>'}</td><td class="p-1 border noprint"><button onclick="hapusSatu('${r.id}')" class="bg-red-500 text-white px-2 py-1 rounded">Hapus</button></td></tr>`).join('')+`</table>`;
 }
 async function hapusSatu(id){
   if(!confirm('Hapus 1 data ini + fotonya?'))return;
