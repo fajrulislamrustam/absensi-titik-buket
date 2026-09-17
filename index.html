@@ -180,6 +180,8 @@
         <p class="text-xs text-gray-500 mb-2">Foto dihapus permanen untuk melegakan ruang. Data absensi & laporan tidak ikut hilang.</p>
         <div class="flex flex-wrap gap-2 text-sm noprint">
           <button onclick="hapusFoto('lebih_dari')" class="bg-orange-500 text-white px-3 py-2 rounded">Foto > 30 hari</button>
+          <input id="hfHari" type="date" class="border rounded p-2">
+          <button onclick="hapusFoto('hari')" class="bg-orange-500 text-white px-3 py-2 rounded">Foto per hari</button>
           <input id="hfBulan" type="month" class="border rounded p-2">
           <button onclick="hapusFoto('bulan')" class="bg-orange-500 text-white px-3 py-2 rounded">Foto per bulan</button>
           <button onclick="hapusFoto('semua')" class="bg-red-600 text-white px-3 py-2 rounded">Semua foto</button>
@@ -356,8 +358,9 @@ async function hapusData(mode){
 async function hapusFoto(mode){
   let q='mode='+mode;
   if(mode==='bulan'){if(!$('hfBulan').value)return alert('Pilih bulan dulu');q+=`&bulan=${$('hfBulan').value}`;}
+  if(mode==='hari'){if(!$('hfHari').value)return alert('Pilih tanggal dulu');q+=`&tanggal=${$('hfHari').value}`;}
   if(mode==='lebih_dari')q+='&hari=30';
-  const label=mode==='semua'?'SEMUA foto absen':mode==='bulan'?`foto bulan ${$('hfBulan').value}`:'foto lebih dari 30 hari';
+  const label=mode==='semua'?'SEMUA foto absen':mode==='bulan'?`foto bulan ${$('hfBulan').value}`:mode==='hari'?`foto tanggal ${$('hfHari').value}`:'foto lebih dari 30 hari';
   if(!confirm(`Hapus ${label}? Data laporan tetap ada, hanya fotonya yang hilang!`))return;
   const {data}=await api('/api/admin/photos?'+q,{method:'DELETE'});
   $('hfMsg').textContent=(data.ok?'✅ ':'❌ ')+(data.message||'');

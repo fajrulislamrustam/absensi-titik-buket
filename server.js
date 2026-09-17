@@ -341,16 +341,17 @@ app.delete('/api/admin/attendance', auth, adminOnly, (req, res) => {
   res.json({ ok: true, message: `${hapus} data absensi dihapus (${fotoHapus} foto ikut dibersihkan)`, hapus });
 });
 
-// Hapus FOTO saja (data laporan tetap ada, foto jadi "tanpa foto"). Mode: semua | bulan=YYYY-MM | lebih_dari=N (hari)
+// Hapus FOTO saja (data laporan tetap ada, foto jadi "tanpa foto"). Mode: semua | bulan=YYYY-MM | hari=YYYY-MM-DD | lebih_dari=N (hari)
 app.delete('/api/admin/photos', auth, adminOnly, (req, res) => {
   const db = loadDB();
-  const { mode, bulan, hari } = req.query;
+  const { mode, bulan, tanggal, hari } = req.query;
   const beforeMB = dirSizeMB(UPLOAD_DIR);
   let kena = 0;
   const cocok = (r) => {
     if (!r.photo) return false;
     if (mode === 'semua') return true;
     if (mode === 'bulan' && bulan) return r.tanggal.startsWith(bulan);
+    if (mode === 'hari' && tanggal) return r.tanggal === tanggal;
     if (mode === 'lebih_dari' && hari) {
       const batas = new Date(); batas.setDate(batas.getDate() - parseInt(hari));
       const tgl = new Date(r.tanggal + 'T00:00:00');
@@ -358,8 +359,8 @@ app.delete('/api/admin/photos', auth, adminOnly, (req, res) => {
     }
     return false;
   };
-  if (!['semua', 'bulan', 'lebih_dari'].includes(mode))
-    return res.status(400).json({ ok: false, message: 'Mode tidak valid. Gunakan mode=semua|bulan|lebih_dari.' });
+  if (!['semua', 'bulan', 'hari', 'lebih_dari'].includes(mode))
+    return res.status(400).json({ ok: false, message: 'Mode tidak valid. Gunakan mode=semua|bulan|hari|lebih_dari.' });
   for (const r of db.attendance) {
     if (cocok(r)) {
       try { fs.unlinkSync(path.join(DATA_DIR, r.photo.replace(/^\//, ''))); } catch {}
@@ -375,12 +376,15 @@ app.delete('/api/admin/photos', auth, adminOnly, (req, res) => {
 
 // ============ STORAGE ============
 app.get('/api/admin/storage', auth, adminOnly, (req, res) => {
+  const db = loadDB();
   const upMB = dirSizeMB(UPLOAD_DIR);
   let dbMB = 0; try { dbMB = fs.statSync(DATA_FILE).size / (1024 * 1024); } catch {}
   const total = upMB + dbMB;
   const pct = Math.round((total / STORAGE_LIMIT_MB) * 100);
   const warning = pct >= 80;
-  res.json({ ok: true, uploadsMB: +upMB.toFixed(2), dbMB: +dbMB.toFixed(2), totalMB: +total.toFixed(2), limitMB: STORAGE_LIMIT_MB, percent: pct, warning, message: warning ? `⚠️ Penyimpanan ${pct}% penuh (${total.toFixed(1)}/${STORAGE_LIMIT_MB} MB). Segera hapus data lama via menu Hapus Data (per nama / hari / bulan).` : `Penyimpanan aman (${pct}%).` });
+  res.json({ ok: true, uploadsMB: +upMB.toFixed(2), dbMB: +dbMB.toFixed(2), totalMB: +total.toFixed(2), limitMB: STORAGE_LIMIT_MB, percent: pct, warning, message: warning ? `⚠️ Penyimpanan ${pct}% penuh (${total.toFixed(1)}/${STORAGE_LIMIT_MB} MB). Segera hapus data lama via menu Hapus Data (per nama / hari / bulan).` : `Penyimpanan aman (${pct}%).`,
+    dataDir: DATA_DIR, permanen: DATA_DIR !== __dirname,
+    jumlahUser: db.users.length, jumlahAbsen: db.attendance.length });
 });
 
 app.get('/api/health', (req, res) => res.json({ ok: true, time: new Date().toISOString() }));
