@@ -19,7 +19,9 @@ if (!fs.existsSync(UPLOAD_DIR)) fs.mkdirSync(UPLOAD_DIR, { recursive: true });
 
 app.use(cors());
 app.use(express.json({ limit: '12mb' }));
-app.use(express.static(path.join(__dirname, 'public')));
+// Frontend: utama dari /public, cadangan dari root repo (jaga-jaga bila index.html terupload di luar public)
+const PUBLIC_DIR = fs.existsSync(path.join(__dirname, 'public', 'index.html')) ? path.join(__dirname, 'public') : __dirname;
+app.use(express.static(PUBLIC_DIR));
 app.use('/uploads', express.static(UPLOAD_DIR));
 
 // ============ KONFIG TOKO (bisa diubah admin via API, tersimpan di data.json) ============
